@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
     time_end = time.time()
     time_total = time_end - time_begin
-    print(NUM // time_total)
+    print(time_total)
 
     cap.release()
     cv2.destroyAllWindows()
