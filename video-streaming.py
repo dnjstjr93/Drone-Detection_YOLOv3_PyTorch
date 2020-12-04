@@ -80,7 +80,7 @@ if __name__ == "__main__":
     NUM = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     #NUM=0
 
-    rtmp_url = 'rtmp://203.253.128.135:1935/live01/drone01'
+    rtmp_url = "rtmp://203.253.128.135:1935/live01/drone01"
 
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     # p = subprocess.Popen(command, stdin=subprocess.PIPE, shell=True)
 
     ### For Jetson TX2 ###
-    command = "appsrc ! videoconvert ! video/x-raw,format=BGRx ! nvvidconv ! nvv4l2h264enc bitrate=4000000 ! video/x-h264,stream-format=(string)au ! h264parse ! queue !  flvmux name=mux ! rtmpsink location=" + rtmp_url
+    command = "appsrc ! videoconvert ! video/x-raw,format=BGRx ! nvvidconv ! nvv4l2h264enc bitrate=4000000 ! video/x-h264,stream-format=(string)byte-stream,alignment=(string)au ! h264parse ! queue !  flvmux name=mux ! rtmpsink location=" + rtmp_url
 
     output = cv2.VideoWriter(command, 0, fps, (width, height))
 
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                 cv2.imshow('Detector', result)
 
                 # p.stdin.write(img.tobytes())
-                output.write(img)
+                output.write(result)
 
             else:
                 count += 1
