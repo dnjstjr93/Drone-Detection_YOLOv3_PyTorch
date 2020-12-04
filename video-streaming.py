@@ -78,7 +78,7 @@ if __name__ == "__main__":
     NUM = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     #NUM=0
 
-    rtmp_url = "rtmp://203.253.128.135:1935/live01/drone01"
+    rtmp_url = 'rtmp://203.253.128.135:1935/live01/drone01'
 
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
