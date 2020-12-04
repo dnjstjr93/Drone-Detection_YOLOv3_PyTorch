@@ -86,6 +86,7 @@ if __name__ == "__main__":
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+    # ### For Windows ###
     # command = ['ffmpeg',
     #            '-y',
     #            '-f', 'rawvideo',
@@ -102,14 +103,11 @@ if __name__ == "__main__":
 
     # p = subprocess.Popen(command, stdin=subprocess.PIPE, shell=True)
 
-    process = (
-        ffmpeg
-        .input('pipe:', r='6')
-        .output(rtmp_url, vcodec='libx264', pix_fmt='yuv420p', preset='veryfast',
-        r='20', g='50', video_bitrate='1.4M', maxrate='2M', bufsize='2M', segment_time='6',
-        format='flv')
-        .run_async(pipe_stdin=True)
-        )
+    ### For Jetson TX2 ###
+    command = "appsrc ! videoconvert ! video/x-raw,format=BGRx ! nvvidconv ! nvv4l2h264enc bitrate=4000000 ! video/x-h264,stream-format=(string)au ! h264parse ! queue !  flvmux name=mux ! rtmpsink location=" + rtmp_url
+
+    output = cv2.VideoWriter(command, 0, fps, (width, height))
+
 
     count = 0
     while cap.isOpened():
@@ -117,54 +115,57 @@ if __name__ == "__main__":
         if ret is False:
             break
         # img = cv2.resize(img, (1280, 960), interpolation=cv2.INTER_CUBIC)
+        
+        try:
+            if count == 2:
+                count = 0
+                RGBimg=changeBGR2RGB(img)
+                imgTensor = transforms.ToTensor()(RGBimg)
+                imgTensor, _ = pad_to_square(imgTensor, 0)
+                imgTensor = resize(imgTensor, 416)
 
-        if count == 2:
-            count = 0
-            RGBimg=changeBGR2RGB(img)
-            imgTensor = transforms.ToTensor()(RGBimg)
-            imgTensor, _ = pad_to_square(imgTensor, 0)
-            imgTensor = resize(imgTensor, 416)
+                imgTensor = imgTensor.unsqueeze(0)
+                imgTensor = Variable(imgTensor.type(Tensor))
 
-            imgTensor = imgTensor.unsqueeze(0)
-            imgTensor = Variable(imgTensor.type(Tensor))
+                with torch.no_grad():
+                    detections = model(imgTensor)
+                    detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
 
-            with torch.no_grad():
-                detections = model(imgTensor)
-                detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
+                a.clear()
+                if detections is not None:
+                    a.extend(detections)
+                b=len(a)
+                if len(a):
+                    for detections in a:
+                        if detections is not None:
+                            detections = rescale_boxes(detections, opt.img_size, RGBimg.shape[:2])
+                            unique_labels = detections[:, -1].cpu().unique()
+                            n_cls_preds = len(unique_labels)
+                            for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
+                                box_w = x2 - x1
+                                box_h = y2 - y1
+                                color = [int(c) for c in colors[int(cls_pred)]]
+                                img = cv2.rectangle(img, (int(x1), int(y1 + box_h)), (int(x2), int(y1)), color, 2)
+                                cv2.putText(img, classes[int(cls_pred)], (int(x1), int(y1-1)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                                cv2.putText(img, str("%.2f" % float(conf)), (int(x2), int(y2 - box_h)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                            color, 2)
+                result = changeRGB2BGR(img)
+                cv2.imshow('Detector', result)
 
-            a.clear()
-            if detections is not None:
-                a.extend(detections)
-            b=len(a)
-            if len(a):
-                for detections in a:
-                    if detections is not None:
-                        detections = rescale_boxes(detections, opt.img_size, RGBimg.shape[:2])
-                        unique_labels = detections[:, -1].cpu().unique()
-                        n_cls_preds = len(unique_labels)
-                        for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
-                            box_w = x2 - x1
-                            box_h = y2 - y1
-                            color = [int(c) for c in colors[int(cls_pred)]]
-                            img = cv2.rectangle(img, (int(x1), int(y1 + box_h)), (int(x2), int(y1)), color, 2)
-                            cv2.putText(img, classes[int(cls_pred)], (int(x1), int(y1-1)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-                            cv2.putText(img, str("%.2f" % float(conf)), (int(x2), int(y2 - box_h)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                        color, 2)
-            result = changeRGB2BGR(img)
-            cv2.imshow('Detector', result)
+                # p.stdin.write(img.tobytes())
+                output.write(img)
 
-            # p.stdin.write(img.tobytes())
-            ret2, frame2 = cv2.imencode('.png', img)
-            process.stdin.write(frame2.tobytes())
+            else:
+                count += 1
+        except:
+            output.release()
+            cap.release()
+            cv2.destroyAllWindows()
+            raise Exception('ERRRRRRRRRRRROR')
 
-        else:
-            count += 1
 
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
-
-    process.stdin.close ()
-    process.wait ()
 
     time_end = time.time()
     time_total = time_end - time_begin
