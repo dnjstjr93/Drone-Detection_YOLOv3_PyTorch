@@ -12,6 +12,8 @@ import subprocess
 import torch
 from torch.autograd import Variable
 
+import ffmpeg
+
 def changeBGR2RGB(img):
     b = img[:, :, 0].copy()
     g = img[:, :, 1].copy()
@@ -84,21 +86,30 @@ if __name__ == "__main__":
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    command = ['ffmpeg',
-               '-y',
-               '-f', 'rawvideo',
-               '-vcodec', 'rawvideo',
-               '-pix_fmt', 'bgr24',
-               '-s', "{}x{}".format(width, height),
-               '-r', str(fps),
-               '-i', '-',
-               '-c:v', 'libx264',
-               '-pix_fmt', 'yuv420p',
-               '-preset', 'ultrafast',
-               '-f', 'flv',
-               rtmp_url]
+    # command = ['ffmpeg',
+    #            '-y',
+    #            '-f', 'rawvideo',
+    #            '-vcodec', 'rawvideo',
+    #            '-pix_fmt', 'bgr24',
+    #            '-s', "{}x{}".format(width, height),
+    #            '-r', str(fps),
+    #            '-i', '-',
+    #            '-c:v', 'libx264',
+    #            '-pix_fmt', 'yuv420p',
+    #            '-preset', 'ultrafast',
+    #            '-f', 'flv',
+    #            rtmp_url]
 
-    p = subprocess.Popen(command, stdin=subprocess.PIPE, shell=True)
+    # p = subprocess.Popen(command, stdin=subprocess.PIPE, shell=True)
+
+    process = (
+        ffmpeg
+        .input('pipe:', r='6')
+        .output(rtmp_url, vcodec='libx264', pix_fmt='yuv420p', preset='veryfast',
+        r='20', g='50', video_bitrate='1.4M', maxrate='2M', bufsize='2M', segment_time='6',
+        format='flv')
+        .run_async(pipe_stdin=True)
+        )
 
     count = 0
     while cap.isOpened():
@@ -142,44 +153,12 @@ if __name__ == "__main__":
             result = changeRGB2BGR(img)
             cv2.imshow('Detector', result)
 
-            p.stdin.write(img.tobytes())
+            # p.stdin.write(img.tobytes())
+            ret2, frame2 = cv2.imencode('.png', img)
+            process.stdin.write(frame2.tobytes())
 
         else:
             count += 1
-
-        # RGBimg = changeBGR2RGB(img)
-        # imgTensor = transforms.ToTensor()(RGBimg)
-        # imgTensor, _ = pad_to_square(imgTensor, 0)
-        # imgTensor = resize(imgTensor, 416)
-        #
-        # imgTensor = imgTensor.unsqueeze(0)
-        # imgTensor = Variable(imgTensor.type(Tensor))
-        #
-        # with torch.no_grad():
-        #     detections = model(imgTensor)
-        #     detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
-        #
-        # a.clear()
-        # if detections is not None:
-        #     a.extend(detections)
-        # b = len(a)
-        # if len(a):
-        #     for detections in a:
-        #         if detections is not None:
-        #             detections = rescale_boxes(detections, opt.img_size, RGBimg.shape[:2])
-        #             unique_labels = detections[:, -1].cpu().unique()
-        #             n_cls_preds = len(unique_labels)
-        #             for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
-        #                 box_w = x2 - x1
-        #                 box_h = y2 - y1
-        #                 color = [int(c) for c in colors[int(cls_pred)]]
-        #                 img = cv2.rectangle(img, (x1, y1 + box_h), (x2, y1), color, 2)
-        #                 cv2.putText(img, classes[int(cls_pred)], (x1, y1 - 1), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-        #                 cv2.putText(img, str("%.2f" % float(conf)), (x2, y2 - box_h), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-        #                             color, 2)
-        # cv2.imshow('frame', changeRGB2BGR(RGBimg))
-        #
-        # p.stdin.write(changeRGB2BGR(RGBimg).tobytes())
 
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
