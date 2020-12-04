@@ -162,6 +162,10 @@ if __name__ == "__main__":
 
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
+
+    process.stdin.close ()
+    process.wait ()
+
     time_end = time.time()
     time_total = time_end - time_begin
     print(NUM // time_total)
