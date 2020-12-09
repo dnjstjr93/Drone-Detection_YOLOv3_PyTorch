@@ -44,7 +44,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # parser.add_argument("--image_folder", type=str, default="data/samples", help="path to dataset")
     parser.add_argument("--vedio_file", type=str, default=0, help="path to dataset")
-    # parser.add_argument("--vedio_file", type=str, default="rtmp://203.253.128.135:1935/live02/drone02", help="path to dataset")
+    # parser.add_argument("--vedio_file", type=str, default="rtmp://203.253.128.135:1935/live01/drone01", help="path to dataset")
     # parser.add_argument("--vedio_file", type=str, default="./data/video_samples/drone_sample.mp4", help="path to dataset")
     # parser.add_argument("--vedio_file", type=str, default="./data/video_samples/17_12-00-00.mp4", help="path to dataset")
     parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
