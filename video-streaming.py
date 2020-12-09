@@ -12,8 +12,6 @@ import subprocess
 import torch
 from torch.autograd import Variable
 
-import ffmpeg
-
 def changeBGR2RGB(img):
     b = img[:, :, 0].copy()
     g = img[:, :, 1].copy()
