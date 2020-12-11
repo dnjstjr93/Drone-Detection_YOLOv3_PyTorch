@@ -102,9 +102,12 @@ if __name__ == "__main__":
     # p = subprocess.Popen(command, stdin=subprocess.PIPE, shell=True)
 
     ### For Jetson TX2 ###
-    command = "appsrc ! videoconvert ! video/x-raw,format=BGRx ! nvvidconv ! nvv4l2h264enc bitrate=4000000 ! video/x-h264,stream-format=(string)byte-stream,alignment=(string)au ! h264parse ! queue !  flvmux name=mux ! rtmpsink location=" + rtmp_url
+    # command = "appsrc ! videoconvert ! video/x-raw,format=BGRx ! nvvidconv ! nvv4l2h264enc bitrate=4000000 ! video/x-h264,stream-format=(string)byte-stream,alignment=(string)au ! h264parse ! queue ! flvmux name=mux ! rtmpsink location={}".format(rtmp_url)
+    command = "appsrc ! videoconvert ! video/x-raw,format=BGRx ! nvvidconv ! nvv4l2h264enc bitrate=9000000 ! video/x-h264,stream-format=(string)byte-stream,alignment=(string)au ! h264parse ! flvmux ! rtmpsink location={}".format(rtmp_url)
 
-    output = cv2.VideoWriter(command, 0, fps, (width, height))
+    stream = cv2.VideoWriter(command, 0, 10, (width, height))
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    output = cv2.VideoWriter('./output.mp4', fourcc, 4, (width, height))
 
 
     count = 0
@@ -151,18 +154,20 @@ if __name__ == "__main__":
                 cv2.imshow('Detector', result)
 
                 # p.stdin.write(img.tobytes())
+                stream.write(result)
                 output.write(result)
 
             else:
                 count += 1
         except:
             output.release()
+            stream.release()
             cap.release()
             cv2.destroyAllWindows()
             raise Exception('ERRRRRRRRRRRROR')
 
 
-        if cv2.waitKey(25) & 0xFF == ord('q'):
+        if cv2.waitKey(10) & 0xFF == ord('q'):
             break
 
     time_end = time.time()
