@@ -39,7 +39,7 @@ $ bash get_coco_dataset.sh
 
 ##### Download Drone and Airplane Dataset
 
-- Download custom dataset such as drone, airplane in [here](https://www.dropbox.com/home/%5B2%5DKETI/%5B1%5D%EA%B3%BC%EC%A0%9C/%5B5%5DUTM_(O)%EC%86%8C%ED%98%95%2C%20%EA%B2%BD%EB%9F%89%2C%20%EC%86%8C%EC%B6%9C%EB%A0%A5%20%EB%AC%B4%EC%9D%B8%EB%B9%84%ED%96%89%EC%9E%A5%EC%B9%98%EA%B0%84%20%EC%A7%81%EC%A0%91%20%EC%A0%95%EB%B3%B4%EA%B5%90%ED%99%98%20%EB%8B%A8%EB%A7%90%EC%9E%A5%EC%B9%98%20%EA%B0%9C%EB%B0%9C/%5B1%5DDL/%5B3%5DDrone-Detection_YOLOv3_PyTorch/data?preview=data.zip)
+- Download custom dataset such as drone, airplane in [here](https://www.dropbox.com/s/pmid0dy6wgl6c84/data.zip?dl=0)
 
   
 
