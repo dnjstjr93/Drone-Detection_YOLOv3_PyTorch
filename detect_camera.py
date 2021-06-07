@@ -41,7 +41,7 @@ def changeRGB2BGR(img):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # parser.add_argument("--image_folder", type=str, default="data/samples", help="path to dataset")
-    parser.add_argument("--vedio_file", type=str, default="rtsp://192.168.53.13", help="path to dataset")
+    parser.add_argument("--video_file", type=str, default="rtsp://192.168.53.13", help="path to dataset")
     # parser.add_argument("--vedio_file", type=str, default=0, help="path to dataset")
     # parser.add_argument("--vedio_file", type=str, default="rtmp://203.253.128.135:1935/live01/drone01", help="path to dataset")
     # parser.add_argument("--vedio_file", type=str, default="./data/video_samples/drone_sample.mp4", help="path to dataset")
@@ -114,52 +114,52 @@ if __name__ == "__main__":
     count = 0
     while cap.isOpened():
         ret, img = cap.read()
-        if ret is False:
-            break
+        # if ret is False:
+        #     break
         # img = cv2.resize(img, (1280, 960), interpolation=cv2.INTER_CUBIC)
         
         try:
-            if count == 2:
-                count = 0
-                RGBimg=changeBGR2RGB(img)
-                imgTensor = transforms.ToTensor()(RGBimg)
-                imgTensor, _ = pad_to_square(imgTensor, 0)
-                imgTensor = resize(imgTensor, 416)
+            # if count == 2:
+            #     count = 0
+            RGBimg=changeBGR2RGB(img)
+            imgTensor = transforms.ToTensor()(RGBimg)
+            imgTensor, _ = pad_to_square(imgTensor, 0)
+            imgTensor = resize(imgTensor, 416)
 
-                imgTensor = imgTensor.unsqueeze(0)
-                imgTensor = Variable(imgTensor.type(Tensor))
+            imgTensor = imgTensor.unsqueeze(0)
+            imgTensor = Variable(imgTensor.type(Tensor))
 
-                with torch.no_grad():
-                    detections = model(imgTensor)
-                    detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
+            with torch.no_grad():
+                detections = model(imgTensor)
+                detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
 
-                a.clear()
-                if detections is not None:
-                    a.extend(detections)
-                b=len(a)
-                if len(a):
-                    for detections in a:
-                        if detections is not None:
-                            detections = rescale_boxes(detections, opt.img_size, RGBimg.shape[:2])
-                            unique_labels = detections[:, -1].cpu().unique()
-                            n_cls_preds = len(unique_labels)
-                            for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
-                                box_w = x2 - x1
-                                box_h = y2 - y1
-                                color = [int(c) for c in colors[int(cls_pred)]]
-                                img = cv2.rectangle(img, (int(x1), int(y1 + box_h)), (int(x2), int(y1)), color, 2)
-                                cv2.putText(img, classes[int(cls_pred)], (int(x1), int(y1-1)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-                                cv2.putText(img, str("%.2f" % float(conf)), (int(x2), int(y2 - box_h)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                            color, 2)
-                result = changeRGB2BGR(img)
-                cv2.imshow('Detector', result)
+            a.clear()
+            if detections is not None:
+                a.extend(detections)
+            b=len(a)
+            if len(a):
+                for detections in a:
+                    if detections is not None:
+                        detections = rescale_boxes(detections, opt.img_size, RGBimg.shape[:2])
+                        unique_labels = detections[:, -1].cpu().unique()
+                        n_cls_preds = len(unique_labels)
+                        for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
+                            box_w = x2 - x1
+                            box_h = y2 - y1
+                            color = [int(c) for c in colors[int(cls_pred)]]
+                            img = cv2.rectangle(img, (int(x1), int(y1 + box_h)), (int(x2), int(y1)), color, 2)
+                            cv2.putText(img, classes[int(cls_pred)], (int(x1), int(y1-1)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                            cv2.putText(img, str("%.2f" % float(conf)), (int(x2), int(y2 - box_h)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                        color, 2)
+            result = changeRGB2BGR(img)
+            cv2.imshow('Detector', result)
 
                 # p.stdin.write(img.tobytes())
                 # stream.write(result)
                 # output.write(result)
-
-            else:
-                count += 1
+            #
+            # else:
+            #     count += 1
         except:
             # output.release()
             # stream.release()
