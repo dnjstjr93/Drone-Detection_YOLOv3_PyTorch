@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
 
     count = 0
-    while cap.isOpened():
+    while cv2.waitKey(1) < 0:
         ret, img = cap.read()
         # if ret is False:
         #     break
@@ -168,7 +168,7 @@ if __name__ == "__main__":
         #     raise Exception('ERRRRRRRRRRRROR')
 
 
-        if cv2.waitKey(10) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     time_end = time.time()
