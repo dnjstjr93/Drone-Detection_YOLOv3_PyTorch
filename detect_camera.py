@@ -42,10 +42,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # parser.add_argument("--image_folder", type=str, default="data/samples", help="path to dataset")
     parser.add_argument("--video_file", type=str, default="rtsp://192.168.53.13", help="path to dataset")
-    # parser.add_argument("--vedio_file", type=str, default=0, help="path to dataset")
-    # parser.add_argument("--vedio_file", type=str, default="rtmp://203.253.128.135:1935/live01/drone01", help="path to dataset")
-    # parser.add_argument("--vedio_file", type=str, default="./data/video_samples/drone_sample.mp4", help="path to dataset")
-    # parser.add_argument("--vedio_file", type=str, default="./data/video_samples/17_12-00-00.mp4", help="path to dataset")
+    # parser.add_argument("--video_file", type=str, default=0, help="path to dataset")
+    # parser.add_argument("--video_file", type=str, default="rtmp://203.253.128.135:1935/live01/drone01", help="path to dataset")
+    # parser.add_argument("--video_file", type=str, default="./data/video_samples/drone_sample.mp4", help="path to dataset")
+    # parser.add_argument("--video_file", type=str, default="./data/video_samples/17_12-00-00.mp4", help="path to dataset")
     parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
     # parser.add_argument("--model_def", type=str, default="config/yolov3-drone.cfg", help="path to model definition file")
     parser.add_argument("--weights_path", type=str, default="weights/yolov3.weights", help="path to weights file")
@@ -71,8 +71,8 @@ if __name__ == "__main__":
     model.eval()  # Set in evaluation mode
     classes = load_classes(opt.class_path)
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
-    #if opt.vedio_file.endswith(".mp4"):
-    cap = cv2.VideoCapture(opt.vedio_file)
+    #if opt.video_file.endswith(".mp4"):
+    cap = cv2.VideoCapture(opt.video_file)
     colors = np.random.randint(0, 255, size=(len(classes), 3), dtype="uint8")
     a=[]
     time_begin = time.time()
