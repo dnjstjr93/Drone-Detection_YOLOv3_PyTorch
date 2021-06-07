@@ -118,41 +118,41 @@ if __name__ == "__main__":
         #     break
         # img = cv2.resize(img, (1280, 960), interpolation=cv2.INTER_CUBIC)
         
-        try:
-            # if count == 2:
-            #     count = 0
-            RGBimg=changeBGR2RGB(img)
-            imgTensor = transforms.ToTensor()(RGBimg)
-            imgTensor, _ = pad_to_square(imgTensor, 0)
-            imgTensor = resize(imgTensor, 416)
+        # try:
+        # if count == 2:
+        #     count = 0
+        RGBimg=changeBGR2RGB(img)
+        imgTensor = transforms.ToTensor()(RGBimg)
+        imgTensor, _ = pad_to_square(imgTensor, 0)
+        imgTensor = resize(imgTensor, 416)
 
-            imgTensor = imgTensor.unsqueeze(0)
-            imgTensor = Variable(imgTensor.type(Tensor))
+        imgTensor = imgTensor.unsqueeze(0)
+        imgTensor = Variable(imgTensor.type(Tensor))
 
-            with torch.no_grad():
-                detections = model(imgTensor)
-                detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
+        with torch.no_grad():
+            detections = model(imgTensor)
+            detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
 
-            a.clear()
-            if detections is not None:
-                a.extend(detections)
-            b=len(a)
-            if len(a):
-                for detections in a:
-                    if detections is not None:
-                        detections = rescale_boxes(detections, opt.img_size, RGBimg.shape[:2])
-                        unique_labels = detections[:, -1].cpu().unique()
-                        n_cls_preds = len(unique_labels)
-                        for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
-                            box_w = x2 - x1
-                            box_h = y2 - y1
-                            color = [int(c) for c in colors[int(cls_pred)]]
-                            img = cv2.rectangle(img, (int(x1), int(y1 + box_h)), (int(x2), int(y1)), color, 2)
-                            cv2.putText(img, classes[int(cls_pred)], (int(x1), int(y1-1)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-                            cv2.putText(img, str("%.2f" % float(conf)), (int(x2), int(y2 - box_h)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                        color, 2)
-            result = changeRGB2BGR(img)
-            cv2.imshow('Detector', result)
+        a.clear()
+        if detections is not None:
+            a.extend(detections)
+        b=len(a)
+        if len(a):
+            for detections in a:
+                if detections is not None:
+                    detections = rescale_boxes(detections, opt.img_size, RGBimg.shape[:2])
+                    unique_labels = detections[:, -1].cpu().unique()
+                    n_cls_preds = len(unique_labels)
+                    for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
+                        box_w = x2 - x1
+                        box_h = y2 - y1
+                        color = [int(c) for c in colors[int(cls_pred)]]
+                        img = cv2.rectangle(img, (int(x1), int(y1 + box_h)), (int(x2), int(y1)), color, 2)
+                        cv2.putText(img, classes[int(cls_pred)], (int(x1), int(y1-1)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                        cv2.putText(img, str("%.2f" % float(conf)), (int(x2), int(y2 - box_h)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                    color, 2)
+        result = changeRGB2BGR(img)
+        cv2.imshow('Detector', result)
 
                 # p.stdin.write(img.tobytes())
                 # stream.write(result)
@@ -160,12 +160,12 @@ if __name__ == "__main__":
             #
             # else:
             #     count += 1
-        except:
-            # output.release()
-            # stream.release()
-            cap.release()
-            cv2.destroyAllWindows()
-            raise Exception('ERRRRRRRRRRRROR')
+        # except:
+        #     # output.release()
+        #     # stream.release()
+        #     cap.release()
+        #     cv2.destroyAllWindows()
+        #     raise Exception('ERRRRRRRRRRRROR')
 
 
         if cv2.waitKey(10) & 0xFF == ord('q'):
