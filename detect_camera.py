@@ -1,3 +1,9 @@
+# -*-coding:utf-8 -*-
+
+"""
+ Created by Wonseok Jung in KETI on 2021-06-07.
+"""
+
 from __future__ import division
 
 from models import *
@@ -38,10 +44,25 @@ def changeRGB2BGR(img):
     return img
 
 
+point_x = 0
+point_y = 0
+
+
+def move_event(event, x, y, flags, params):
+    global width
+    global height
+    global point_x
+    global point_y
+
+    if event == cv2.EVENT_MOUSEMOVE:
+        point_x = x
+        point_y = y
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # parser.add_argument("--image_folder", type=str, default="data/samples", help="path to dataset")
-    parser.add_argument("--video_file", type=str, default="rtsp://192.168.53.13", help="path to dataset")
+    parser.add_argument("--video_file", type=str, default=0, help="path to dataset")
     # parser.add_argument("--video_file", type=str, default=0, help="path to dataset")
     # parser.add_argument("--video_file", type=str, default="rtmp://203.253.128.135:1935/live01/drone01", help="path to dataset")
     # parser.add_argument("--video_file", type=str, default="./data/video_samples/drone_sample.mp4", help="path to dataset")
@@ -89,7 +110,7 @@ if __name__ == "__main__":
     while cv2.waitKey(1) < 0:
         ret, img = cap.read()
         if ret:
-            img = cv2.resize(img, None, fx=0.4, fy=0.4)
+            # img = cv2.resize(img, None, fx=0.4, fy=0.4)
 
             RGBimg=changeBGR2RGB(img)
             imgTensor = transforms.ToTensor()(RGBimg)
@@ -121,7 +142,14 @@ if __name__ == "__main__":
                             cv2.putText(img, classes[int(cls_pred)], (int(x1), int(y1-1)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
                             cv2.putText(img, str("%.2f" % float(conf)), (int(x2), int(y2 - box_h)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                         color, 2)
+
+
+            cv2.setMouseCallback('Detector', move_event)
+
             result = changeRGB2BGR(img)
+            if (point_x == 0) or (point_y == 0):
+                cv2.putText(result, 'x={}, y={}'.format(point_x, point_y), (0, height - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             cv2.imshow('Detector', result)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
