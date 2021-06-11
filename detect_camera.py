@@ -143,13 +143,11 @@ if __name__ == "__main__":
                             cv2.putText(img, str("%.2f" % float(conf)), (int(x2), int(y2 - box_h)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                         color, 2)
 
-
             cv2.setMouseCallback('Detector', move_event)
 
             result = changeRGB2BGR(img)
-            if (point_x == 0) or (point_y == 0):
-                cv2.putText(result, 'x={}, y={}'.format(point_x, point_y), (0, height - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.putText(result, 'x={}, y={}'.format(point_x, point_y), (0, height - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 
+                        (255, 255, 255), 2)
             cv2.imshow('Detector', result)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
