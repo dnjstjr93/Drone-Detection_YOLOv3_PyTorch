@@ -1,0 +1,6 @@
+__pycache__
+.idea
+venv
+Drone-Detection_YOLOv3_PyTorch
+detect.py
+detect_video.py
