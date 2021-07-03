@@ -1,7 +1,7 @@
 
 # Drone-Detection_YOLOv3_PyTorch
 
-PyTorch based YOLOv3 implementation for drone detection in drone gymball
+PyTorch based YOLOv3 implementation for drone detection in drone gimbal
 
   
 
